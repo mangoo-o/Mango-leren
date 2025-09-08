@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NederNinja — VWO 2 (HTML Prototype)</title>
+  <style>
+    :root{--bg1:#0f172a;--bg2:#0b1220;--card:rgba(255,255,255,0.06);--accent:#7c3aed;--accent2:#06b6d4;--good:#16a34a;--bad:#ef4444}
+    *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#f8fafc}
+    .container{max-width:1100px;margin:28px auto;padding:18px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    h1{margin:0;font-size:20px}
+    .badges{display:flex;gap:8px;align-items:center}
+    .badge{background:rgba(255,255,255,0.07);padding:6px 10px;border-radius:999px;font-size:13px}
+    main{margin-top:18px;display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .card{background:var(--card);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
+    nav .tabs{display:flex;gap:6px}
+    .tabs button{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:#e6eef8}
+    .tabs button.active{background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 8px 20px rgba(2,6,23,0.6)}
+    .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .small{font-size:13px;color:#cfe8f0}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .choice{background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+    .choice:hover{transform:translateY(-2px)}
+    .hint{margin-top:8px;font-size:13px;color:#cfe8f0}
+    .feedback{margin-top:12px;padding:10px;border-radius:10px}
+    .feedback.good{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);color:var(--good)}
+    .feedback.bad{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.18);color:var(--bad)}
+    .stats{display:flex;gap:8px;flex-wrap:wrap}
+    .stat{background:rgba(0,0,0,0.25);padding:8px 10px;border-radius:8px;font-size:13px}
+    .mini{font-size:13px}
+
+    /* Runner */
+    .runner-area{height:360px;position:relative;background:linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.25));border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    .lane{position:absolute;top:0;bottom:0;width:33.3333%}
+    .player{position:absolute;bottom:18px;width:22%;left:39%;transform:translateX(0);text-align:center;padding:8px;background:rgba(255,255,255,0.06);border-radius:10px}
+    .item{position:absolute;padding:6px 10px;background:rgba(0,0,0,0.5);border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+    .controls{display:flex;gap:8px;margin-top:10px}
+    .btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#eaf6fb;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+    footer{margin-top:18px;color:#9fb4c0;font-size:13px}
+
+    @media(max-width:900px){main{grid-template-columns:1fr;padding:0} .player{width:30%} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>NederNinja — VWO 2 • Nederlands</h1>
+        <div class="small">Spelling, voltooid deelwoord, samenstellingen en grammatica — met minigames</div>
+      </div>
+      <div class="badges">
+        <div class="badge stats">
+          <span id="level">Lv 1</span> • <span id="xp">0 XP</span>
+        </div>
+        <div class="badge stats">Munten: <span id="coins">0</span></div>
+        <div class="badge stats">Streak: <span id="streak">0</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="card">
+          <nav class="tabs" id="tabs">
+            <button class="active" data-tab="oefenen">Oefenen</button>
+            <button data-tab="minigames">Minigames</button>
+            <button data-tab="voortgang">Voortgang</button>
+          </nav>
+          <div id="content" style="margin-top:12px">
+            <!-- Oefenen view -->
+            <div data-view="oefenen">
+              <div class="section-title"><strong>Oefenen</strong>
+                <div class="small">Kies een onderdeel</div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <select id="moduleSelect" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#eaf6fb">
+                  <option value="werkwoord">Werkwoordspelling (tt)</option>
+                  <option value="voltooid">Voltooid deelwoord</option>
+                  <option value="samenstelling">Samenstellingen</option>
+                  <option value="grammatica">Grammatica: goed/fout</option>
+                </select>
+                <button class="btn primary" id="startExercise">Start oefening</button>
+              </div>
+
+              <div id="exerciseArea" style="margin-top:14px"></div>
+            </div>
+
+            <!-- Minigames view -->
+            <div data-view="minigames" style="display:none">
+              <div class="section-title"><strong>Minigames</strong><div class="small">Taalrunner — pak het juiste woord</div></div>
+              <div style="display:grid;grid-template-columns:1fr 240px;gap:12px">
+                <div class="card runner-area" id="runnerArea">
+                  <!-- lanes -->
+                  <div class="lane" style="left:0"></div>
+                  <div class="lane" style="left:33.3333%"></div>
+                  <div class="lane" style="left:66.6666%"></div>
+                  <div class="player" id="player">Jij</div>
+                </div>
+                <div class="card">
+                  <div class="section-title"><strong>Besturing & doelen</strong><div class="small">Gebruik links/rechts</div></div>
+                  <div class="mini">Doelen in deze game:</div>
+                  <ul class="mini">
+                    <li>Werkwoordspelling (wordt vs word)</li>
+                    <li>Voltooid deelwoord (gefietst, gewerkt)</li>
+                    <li>Samenstellingen (bioscoopkaartje)</li>
+                    <li>Kies het juiste woord: pak het goede, ontwijk het foute</li>
+                  </ul>
+                  <div style="margin-top:12px" class="controls">
+                    <button class="btn" id="startRunner">Start</button>
+                    <button class="btn" id="stopRunner">Stop</button>
+                  </div>
+                  <div style="margin-top:12px">Score: <strong id="runnerScore">0</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Voortgang view -->
+            <div data-view="voortgang" style="display:none">
+              <div class="section-title"><strong>Voortgang</strong><div class="small">Je recente XP</div></div>
+              <div id="progressChart" class="card" style="height:170px;padding:12px;display:flex;align-items:center;justify-content:center">Grafiek (voorbeeld)</div>
+              <div style="margin-top:12px" class="card">
+                <div>Vandaag verzamelde XP: <strong id="todayXP">0</strong></div>
+                <div style="margin-top:8px">Niveau: <strong id="levelView">1</strong></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card">
+          <div class="section-title"><strong>Tips</strong><div class="small">Korte regels</div></div>
+          <div class="small">
+            <ul>
+              <li><strong>Ik</strong>-vorm = stam → ik loop</li>
+              <li><strong>Hij/zij/het</strong> = stam + t → hij loopt</li>
+              <li><strong>'t kofschip</strong> → stam eindigt op f, s, ch, p, t, k, x → voltooid deelwoord krijgt -t</li>
+              <li>Samenstellingen schrijf je aan elkaar: bioscoop + kaartje = bioscoopkaartje</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="section-title"><strong>Volgende stappen</strong><div class="small">Wat wil je toevoegen?</div></div>
+          <div class="small">Meer minigames, toetsen, of een leerroute voor VWO2? Klik "Start oefening" en probeer eerst de modules.</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      Prototype — lokaal opgeslagen progressie (localStorage). Geen tracking.
+    </footer>
+  </div>
+
+  <script>
+    /* ---------- Data (VWO2 examples) ---------- */
+    const VERB_FORMS = [
+      {inf:'worden', subj:'hij', correct:'wordt', rule:'tt: stam + t bij hij/zij/het'},
+      {inf:'lopen', subj:'ik', correct:'loop', rule:'ik-vorm = stam'},
+      {inf:'maken', subj:'hij', correct:'maakt', rule:'stam + t'},
+      {inf:'praten', subj:'hij', correct:'praat', rule:'stam + t'},
+      {inf:'fietsen', subj:'zij', correct:'fietst', rule:"stam + t"},
+      {inf:'reizen', subj:'ik', correct:'reis', rule:'ik-vorm = stam'},
+      {inf:'antwoorden', subj:'hij', correct:'antwoordt', rule:"stam + t"}
+    ];
+
+    const PARTICIPLES = [
+      {inf:'fietsen', correct:'gefietst', hint:"'t kofschip: stam eindigt op s → -t"},
+      {inf:'werken', correct:'gewerkt', hint:"stam eindigt op k → -t"},
+      {inf:'leven', correct:'geleefd', hint:"anders → -d"},
+      {inf:'reizen', correct:'gereisd', hint:"anders → -d"},
+      {inf:'pakken', correct:'gepakt', hint:"stam eindigt op k → -t"}
+    ];
+
+    const COMPOUNDS = [
+      {base:'aardappel + puree', correct:'aardappelpuree', hint:'aan elkaar'},
+      {base:'bioscoop + kaartje', correct:'bioscoopkaartje', hint:'aan elkaar'},
+      {base:'lange-afstand + loper', correct:'langeafstandsloper', hint:'aan elkaar'}
+    ];
+
+    const GRAMMAR = [
+      {good:'Hij heeft meer tijd dan ik.', bad:'Hij heeft meer tijd als ik.', hint:'Vergelijking → dan'},
+      {good:'Dat is het boek dat ik zocht.', bad:'Dat is het boek wat ik zocht.', hint:"Betrekkelijk vnw → dat bij 'het'"},
+      {good:'Er liggen minder boeken op tafel.', bad:'Er liggen mindere boeken op tafel.', hint:'Minder bij hoeveelheden'}
+    ];
+
+    /* ---------- Simple State (localStorage) ---------- */
+    function loadState(){
+      const raw = localStorage.getItem('nederninja_v1');
+      if(raw) return JSON.parse(raw);
+      return {xp:0,coins:0,streak:0,history:[]};
+    }
+    function saveState(s){ localStorage.setItem('nederninja_v1', JSON.stringify(s)); }
+    let state = loadState();
+    const ui = {xp:document.getElementById('xp'), level:document.getElementById('level'), coins:document.getElementById('coins'), streak:document.getElementById('streak'), todayXP:document.getElementById('todayXP'), levelView:document.getElementById('levelView') };
+    function refreshUI(){ ui.xp.textContent = state.xp + ' XP'; ui.coins.textContent = state.coins; ui.streak.textContent = state.streak; ui.level.textContent = 'Lv ' + (Math.floor(state.xp/250)+1); ui.todayXP.textContent = (state.history[state.history.length-1]||{xp:0}).xp; ui.levelView.textContent = (Math.floor(state.xp/250)+1); }
+    refreshUI();
+
+    function award(x,c=0){ state.xp += x; state.coins += c; state.streak += 1; const today = new Date().toLocaleDateString(); if(!state.history.length || state.history[state.history.length-1].day !== today) state.history.push({day:today,xp:0}); state.history[state.history.length-1].xp += x; saveState(state); refreshUI(); }
+    function miss(){ state.streak = 0; saveState(state); refreshUI(); }
+
+    /* ---------- Tabs ---------- */
+    document.getElementById('tabs').addEventListener('click', (e)=>{
+      if(e.target.tagName !== 'BUTTON') return; document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); const tab = e.target.dataset.tab; document.querySelectorAll('[data-view]').forEach(v=>v.style.display = v.dataset.view === tab ? '' : 'none');
+    });
+
+    /* ---------- Exercise Logic ---------- */
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    const moduleSelect = document.getElementById('moduleSelect');
+    document.getElementById('startExercise').addEventListener('click', ()=>{
+      const m = moduleSelect.value; const area = document.getElementById('exerciseArea'); area.innerHTML = '';
+      if(m === 'werkwoord') startVerb(area);
+      if(m === 'voltooid') startParticiple(area);
+      if(m === 'samenstelling') startCompound(area);
+      if(m === 'grammatica') startGrammar(area);
+    });
+
+    function makeChoices(correct, distractors){ const arr = [correct, ...distractors].slice(0,3); return arr.sort(()=>Math.random()-0.5); }
+
+    function startVerb(area){ let q = rand(VERB_FORMS); renderVerb();
+      function renderVerb(){ area.innerHTML = `<div class="small">Vul in (tt): <strong>${q.subj}</strong> ... <em>(${q.inf})</em></div><div class="choices" id="choices"></div><div id="hint" class="hint"></div><div id="fb"></div>`;
+        const ch = document.getElementById('choices'); const opts = makeChoices(q.correct, q.rule? [q.rule + '','fout'] : ['fout','fout2']); opts.forEach(o=>{ const btn = document.createElement('div'); btn.className='choice'; btn.textContent = o; btn.onclick = ()=>{ if(o===q.correct){ showFeedback(true,q.rule); award(12,1); q = rand(VERB_FORMS); } else { showFeedback(false,q.rule); miss(); } } ; ch.appendChild(btn); });
+      }
+      function showFeedback(ok, hint){ const fb = document.getElementById('fb'); fb.innerHTML = `<div class="feedback ${ok? 'good':'bad'}">${ok? 'Goed! +12 XP' : 'Fout...'} <div class="hint">${hint||''}</div><div style="margin-top:8px"><button class="btn" id="nextBtn">Volgende</button></div></div>`; document.getElementById('nextBtn').onclick = ()=>{ fb.innerHTML=''; renderVerb(); } }
+    }
+
+    function startParticiple(area){ let q = rand(PARTICIPLES); render(); function render(){ area.innerHTML = `<div class="small">Kies het juiste voltooid deelwoord voor <em>${q.inf}</em></div><div class="choices" id="choices"></div><div id="fb"></div>`; const opts = makeChoices(q.correct, q.hint? [q.hint,'fout']: ['fout','fout2']); const ch = document.getElementById('choices'); opts.forEach(o=>{ const btn = document.createElement('div'); btn.className='choice'; btn.textContent = o; btn.onclick = ()=>{ if(o===q.correct){ show(true,q.hint); award(12,1); q=rand(PARTICIPLES);} else { show(false,q.hint); miss(); } } ; ch.appendChild(btn); }); }
+      function show(ok,hint){ const fb = document.getElementById('fb'); fb.innerHTML = `<div class="feedback ${ok? 'good':'bad'}">${ok? 'Goed! +12 XP' : 'Helaas...'}<div class="hint">${hint||''}</div><div style="margin-top:8px"><button class="btn" id="nextBtn">Volgende</button></div></div>`; document.getElementById('nextBtn').onclick = ()=>{ fb.innerHTML=''; render(); } }
+    }
+
+    function startCompound(area){ let q = rand(COMPOUNDS); render(); function render(){ area.innerHTML = `<div class="small">Schrijf als samenstelling: <em>${q.base}</em></div><div class="choices" id="choices"></div><div id="fb"></div>`; const opts = makeChoices(q.correct, [q.hint,'fout']); const ch = document.getElementById('choices'); opts.forEach(o=>{ const btn=document.createElement('div'); btn.className='choice'; btn.textContent=o; btn.onclick=()=>{ if(o===q.correct){ show(true,q.hint); award(10,1); q=rand(COMPOUNDS);} else { show(false,q.hint); miss(); } }; ch.appendChild(btn); }); }
+      function show(ok,hint){ const fb=document.getElementById('fb'); fb.innerHTML=`<div class="feedback ${ok?'good':'bad'}">${ok? 'Goed! +10 XP':'Fout'}<div class="hint">${hint}</div><div style="margin-top:8px"><button class="btn" id="nextBtn">Volgende</button></div></div>`; document.getElementById('nextBtn').onclick=()=>{ fb.innerHTML=''; render(); }; }
+    }
+
+    function startGrammar(area){ let q=rand(GRAMMAR); render(); function render(){ area.innerHTML=`<div class="small">Kies de juiste zin.</div><div class="choices" id="choices"></div><div id="fb"></div>`; const opts=[q.good,q.bad].sort(()=>Math.random()-0.5); const ch=document.getElementById('choices'); opts.forEach(o=>{ const btn=document.createElement('div'); btn.className='choice'; btn.textContent=o; btn.onclick=()=>{ if(o===q.good){ show(true,q.hint); award(12,1); q=rand(GRAMMAR);} else { show(false,q.hint); miss(); } }; ch.appendChild(btn); }); }
+      function show(ok,hint){ const fb=document.getElementById('fb'); fb.innerHTML=`<div class="feedback ${ok?'good':'bad'}">${ok? 'Goed! +12 XP':'Niet goed'}<div class="hint">${hint}</div><div style="margin-top:8px"><button class="btn" id="nextBtn">Volgende</button></div></div>`; document.getElementById('nextBtn').onclick=()=>{ fb.innerHTML=''; render(); }; }
+    }
+
+    /* ---------- Runner Minigame ---------- */
+    const runnerArea = document.getElementById('runnerArea'); const player = document.getElementById('player'); const runnerScore = document.getElementById('runnerScore'); let runnerLoop, spawnInterval, running=false; let runnerItems = []; let playerLane = 1; const lanesX = [6, 39, 72]; // percent left
+    let runnerSpeed = 1; let score = 0;
+
+    function spawnRunnerItem(){ const bank = [
+      {good:'hij wordt', bad:'hij word'},
+      {good:'antwoordt', bad:'antwoort'},
+      {good:'gefietst', bad:'gefietsd'},
+      {good:'bioscoopkaartje', bad:'bioscoop kaartje'},
+      {good:'dan ik', bad:'als ik'},
+      {good:'gereisd', bad:'gereist'}
+    ]; const w = rand(bank); const pair = Math.random()>0.5 ? [{lane:0,text:w.good,good:true},{lane:2,text:w.bad,good:false}] : [{lane:2,text:w.good,good:true},{lane:0,text:w.bad,good:false}]; pair.forEach(p=>{ const el = document.createElement('div'); el.className='item'; el.style.left = lanesX[p.lane] + '%'; el.style.top = '-8%'; el.textContent = p.text; runnerArea.appendChild(el); runnerItems.push({el,p,lane:p.lane,y:-8,good:p.good}); }); }
+
+    function runnerFrame(){ runnerItems.forEach(it=>{ it.y += runnerSpeed; it.el.style.top = it.y + '%'; }); // check collisions
+      for(let i=runnerItems.length-1;i>=0;i--){ const it = runnerItems[i]; if(it.y>82 && it.y<92 && it.lane===playerLane){ // collision
+          if(it.good){ score++; runnerScore.textContent = score; award(3,0); } else { score = Math.max(0, score-3); runnerScore.textContent = score; miss(); runnerSpeed = Math.max(1, runnerSpeed - 0.6); }
+          runnerArea.removeChild(it.el); runnerItems.splice(i,1);
+        } else if(it.y>110){ runnerArea.removeChild(it.el); runnerItems.splice(i,1); }
+      }
+      // speed up slowly
+      runnerSpeed += 0.002;
+      runnerLoop = requestAnimationFrame(runnerFrame);
+    }
+
+    document.getElementById('startRunner').addEventListener('click', ()=>{
+      if(running) return; running=true; score=0; runnerScore.textContent='0'; runnerSpeed=1; runnerItems.forEach(it=>runnerArea.removeChild(it.el)); runnerItems=[]; spawnRunnerItem(); runnerLoop = requestAnimationFrame(runnerFrame); spawnInterval = setInterval(spawnRunnerItem, 900);
+      // stop after 60s
+      setTimeout(()=>{ stopRunner(); }, 60000);
+    });
+    document.getElementById('stopRunner').addEventListener('click', stopRunner);
+    function stopRunner(){ if(!running) return; running=false; cancelAnimationFrame(runnerLoop); clearInterval(spawnInterval); runnerItems.forEach(it=>{ try{ runnerArea.removeChild(it.el);}catch(e){} }); runnerItems=[]; }
+
+    window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowLeft'){ playerLane = Math.max(0, playerLane-1); player.style.left = lanesX[playerLane] + '%'; } if(e.key==='ArrowRight'){ playerLane = Math.min(2, playerLane+1); player.style.left = lanesX[playerLane] + '%'; } });
+
+    /* ---------- Utility ---------- */
+    function rand(arr){ return Array.isArray(arr)? arr[Math.floor(Math.random()*arr.length)] : null; }
+
+    // ensure today's history exists
+    if(!state.history.length || state.history[state.history.length-1].day !== new Date().toLocaleDateString()) { state.history.push({day:new Date().toLocaleDateString(), xp:0}); saveState(state); }
+    refreshUI();
+  </script>
+</body>
+</html>
